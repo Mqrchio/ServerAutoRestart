@@ -53,6 +53,7 @@ async def restart_server(path_sh: str, name: str) -> None:
 
 
 async def keep_informed():
+    """Check all scheduled tasks and run it"""
     while True:
         schedule.run_pending()
         await asyncio.sleep(1)
