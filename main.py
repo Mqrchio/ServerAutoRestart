@@ -9,6 +9,10 @@ RESOURCES_FOLDER_PATH = os.path.join(os.getcwd(), "resources")
 CONFIG_PATH = os.path.join(RESOURCES_FOLDER_PATH, "config.yml")
 DEFAULT_CONFIG = {
     'timezone': 'Europe/Rome',
+    'screen': {
+        'delete': "screen -X -S <name> quit",
+        'create': "screen -dmS <name> bash -c <file>"
+    },
     'servers': {
         'kitpvp-op': {
             'path': 'path/to/start.sh',
@@ -22,6 +26,7 @@ DEFAULT_CONFIG = {
         }
     }
 }
+VERSION = "0.0.1"
 
 
 def get_config() -> dict:
@@ -38,7 +43,7 @@ def get_config() -> dict:
     return data
 
 
-async def restart_server(path_sh: str, name: str) -> None:
+async def restart_server(path_sh: str, name: str, delete_command: str, create_command: str) -> None:
     """Restart screen session with dispatch command"""
     current_dir = os.getcwd()
     next_dir = os.path.dirname(path_sh)
@@ -46,8 +51,15 @@ async def restart_server(path_sh: str, name: str) -> None:
 
     os.chdir(next_dir)
 
-    os.system(f"screen -X -S {name} quit")
-    os.system(f"screen -dmS {name} bash -c {file_sh}")
+    os.system(
+        delete_command
+            .replace("<name>", name)
+    )
+    os.system(
+        create_command
+              .replace("<name>", name)
+              .replace("<file>", file_sh)
+    )
 
     os.chdir(current_dir)
 
@@ -60,6 +72,8 @@ async def keep_informed():
 
 
 if __name__ == '__main__':
+    print(f"Avvio ServerAutoRestart [{VERSION}]")
+
     config = get_config()
 
     try:
@@ -72,6 +86,14 @@ if __name__ == '__main__':
     except ValueError:
         raise ValueError("Il parametro \"timezone\" deve essere una stringa")
 
+    try:
+        screen = dict(config.pop("screen"))
+        screen_command_delete = str(screen['delete'])
+        screen_command_create = str(screen['create'])
+    except Union[KeyError, ValueError]:
+        raise Exception(f"I parametri per lo screen non sono definiti correttamente")
+    print("File di configurazione importato con successo")
+
     for key in servers.keys():
         try:
             path = str(servers[key]['path'])
@@ -80,9 +102,11 @@ if __name__ == '__main__':
 
         except Union[KeyError, ValueError]:
             raise Exception(f"I parametri per il server {key} non sono definiti correttamente")
-
+        finally:
+            print(f"Server: {key} Stato: OK")
         async def restart_server_callback():
-            await restart_server(path, screen_name)
+            await restart_server(path, screen_name, screen_command_delete, screen_command_create)
+            print(f"Server {key} ricaricato con successo")
 
         schedule.every().day.at(time_to_restart).do(restart_server_callback)
 
