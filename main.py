@@ -43,7 +43,7 @@ def get_config() -> dict:
     return data
 
 
-async def restart_server(path_sh: str, name: str, delete_command: str, create_command: str) -> None:
+def restart_server(path_sh: str, name: str, delete_command: str, create_command: str) -> None:
     """Restart screen session with dispatch command"""
     current_dir = os.getcwd()
     next_dir = os.path.dirname(path_sh)
@@ -106,10 +106,9 @@ if __name__ == '__main__':
             print(f"Server: {key} Stato: OK")
 
 
-        async def restart_server_callback():
-            await restart_server(path, screen_name, screen_command_delete, screen_command_create)
+        def restart_server_callback():
+            restart_server(path, screen_name, screen_command_delete, screen_command_create)
             print(f"Server {key} ricaricato con successo")
-
 
         schedule.every().day.at(time_to_restart).do(restart_server_callback)
 
