@@ -53,12 +53,12 @@ async def restart_server(path_sh: str, name: str, delete_command: str, create_co
 
     os.system(
         delete_command
-            .replace("<name>", name)
+        .replace("<name>", name)
     )
     os.system(
         create_command
-              .replace("<name>", name)
-              .replace("<file>", file_sh)
+        .replace("<name>", name)
+        .replace("<file>", file_sh)
     )
 
     os.chdir(current_dir)
@@ -104,9 +104,12 @@ if __name__ == '__main__':
             raise Exception(f"I parametri per il server {key} non sono definiti correttamente")
         finally:
             print(f"Server: {key} Stato: OK")
+
+
         async def restart_server_callback():
             await restart_server(path, screen_name, screen_command_delete, screen_command_create)
             print(f"Server {key} ricaricato con successo")
+
 
         schedule.every().day.at(time_to_restart).do(restart_server_callback)
 
