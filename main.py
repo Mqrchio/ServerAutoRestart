@@ -10,8 +10,8 @@ CONFIG_PATH = os.path.join(RESOURCES_FOLDER_PATH, "config.yml")
 DEFAULT_CONFIG = {
     'timezone': 'Europe/Rome',
     'screen': {
-        'delete': "screen -X -S <name> quit",
-        'create': "screen -dmS <name> bash -c <file>"
+        'delete': "screen -X -S \"<name>\" quit",
+        'create': "screen -dmS \"<name>\" bash -c <file>"
     },
     'servers': {
         'kitpvp-op': {
